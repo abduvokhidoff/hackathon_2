@@ -1,6 +1,6 @@
 import Pet from '../models/Pet.js'
 
-// CRUD
+// CREATE Pet
 export const createPet = async (req, res) => {
 	try {
 		const { name, type, age, price } = req.body
@@ -21,7 +21,7 @@ export const createPet = async (req, res) => {
 	}
 }
 
-
+// GET all pets
 export const getAllPets = async (req, res) => {
 	try {
 		const pets = await Pet.find()
@@ -33,6 +33,7 @@ export const getAllPets = async (req, res) => {
 	}
 }
 
+// GET single pet
 export const getPet = async (req, res) => {
 	try {
 		const pet = await Pet.findById(req.params.id)
@@ -45,6 +46,7 @@ export const getPet = async (req, res) => {
 	}
 }
 
+// UPDATE Pet (owner only)
 export const updatePet = async (req, res) => {
 	try {
 		const pet = await Pet.findById(req.params.id)
@@ -61,6 +63,7 @@ export const updatePet = async (req, res) => {
 	}
 }
 
+// DELETE Pet (owner only)
 export const deletePet = async (req, res) => {
 	try {
 		const pet = await Pet.findById(req.params.id)
@@ -75,15 +78,15 @@ export const deletePet = async (req, res) => {
 	}
 }
 
-// Actions: sell, rent, orphanage, memory
+// Pet actions (owner only)
 export const petAction = async (req, res) => {
 	try {
 		const { action } = req.body
 		const pet = await Pet.findById(req.params.id)
 		if (!pet) return res.status(404).json({ msg: 'Pet not found' })
 
-		if (pet.owner.toString() !== req.user.id && action !== 'memory')
-			return res.status(401).json({ msg: 'Not authorized' })
+		if (pet.owner.toString() !== req.user.id)
+			return res.status(401).json({ msg: 'Only owner can perform this action' })
 
 		switch (action) {
 			case 'sell':
@@ -109,14 +112,14 @@ export const petAction = async (req, res) => {
 	}
 }
 
-// Send pet to doctor
+// Send pet to doctor (owner only)
 export const sendToDoctor = async (req, res) => {
 	try {
 		const { doctorId } = req.body
 		const pet = await Pet.findById(req.params.id)
 		if (!pet) return res.status(404).json({ msg: 'Pet not found' })
 		if (pet.owner.toString() !== req.user.id)
-			return res.status(401).json({ msg: 'Not authorized' })
+			return res.status(401).json({ msg: 'Only owner can send to doctor' })
 
 		pet.isDoctor = true
 		pet.doctor = doctorId

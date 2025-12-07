@@ -1,5 +1,5 @@
 import express from 'express'
-import { verifyToken, isAdmin, isDoctor } from '../middleware/auth.js'
+import { verifyToken } from '../middleware/auth.js'
 import {
 	createPet,
 	getAllPets,
@@ -13,21 +13,23 @@ import { upload } from '../config/uploads.js'
 
 const router = express.Router()
 
-// User creates pets
+// CREATE Pet (owner)
 router.post('/', verifyToken, upload.array('images', 5), createPet)
 
-// List all pets (anyone)
+// GET all pets
 router.get('/', verifyToken, getAllPets)
 
-// View single pet
+// GET single pet
 router.get('/:id', verifyToken, getPet)
 
-// Update/Delete: user can update own pet, admin can update/delete all
+// UPDATE / DELETE Pet (owner only)
 router.put('/:id', verifyToken, updatePet)
 router.delete('/:id', verifyToken, deletePet)
 
-// Pet actions: only doctor or admin can accept/review
-router.put('/:id/action', verifyToken, isDoctor, petAction)
-router.put('/:id/send-doctor', verifyToken, isAdmin, sendToDoctor)
+// Pet actions (owner only)
+router.put('/:id/action', verifyToken, petAction)
+
+// Send pet to doctor (owner only)
+router.put('/:id/send-doctor', verifyToken, sendToDoctor)
 
 export default router
